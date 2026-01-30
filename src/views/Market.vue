@@ -40,6 +40,10 @@ const sectorsLoading = ref(true)
 const etfList = ref<ETFItem[]>([])
 const etfLoading = ref(true)
 
+// ========== 板块详情弹窗 ==========
+const showSectorPopup = ref(false)
+const selectedSector = ref<SectorInfo | null>(null)
+
 // [WHAT] 计算柱状图最大值（用于比例）
 const maxDistCount = computed(() => {
   if (!overview.value) return 1
@@ -156,11 +160,18 @@ function goToDetail(code: string) {
   router.push(`/detail/${code}`)
 }
 
-// [WHAT] 跳转到板块筛选
+// [WHAT] 显示板块详情弹窗
 function goToSector(sector: SectorInfo) {
-  // [WHY] 跳转到筛选页，显示该板块相关基金
-  showToast(`正在开发: ${sector.name}`)
-  // TODO: 后续可跳转到 /filter?sector=xxx
+  selectedSector.value = sector
+  showSectorPopup.value = true
+}
+
+// [WHAT] 搜索板块相关基金
+function searchSectorFunds() {
+  if (!selectedSector.value) return
+  // [WHY] 跳转到搜索页并传入板块名称
+  showSectorPopup.value = false
+  router.push({ path: '/search', query: { q: selectedSector.value.name } })
 }
 
 // [WHAT] 点击涨跌分布柱子
@@ -354,6 +365,46 @@ onMounted(() => {
       <div class="bottom-spacer"></div>
 
     </van-pull-refresh>
+    
+    <!-- 板块详情弹窗 -->
+    <van-popup 
+      v-model:show="showSectorPopup" 
+      position="bottom" 
+      round
+      :style="{ maxHeight: '60%' }"
+    >
+      <div class="sector-popup" v-if="selectedSector">
+        <div class="sector-popup-header">
+          <div class="sector-popup-title">{{ selectedSector.name }}</div>
+          <van-icon name="cross" @click="showSectorPopup = false" />
+        </div>
+        
+        <div class="sector-popup-content">
+          <div class="sector-popup-info">
+            <div class="info-row">
+              <span class="label">今日涨幅</span>
+              <span class="value" :class="(selectedSector.change || 0) >= 0 ? 'up' : 'down'">
+                {{ (selectedSector.change || 0) >= 0 ? '+' : '' }}{{ (selectedSector.change || 0).toFixed(2) }}%
+              </span>
+            </div>
+            <div class="info-row" v-if="selectedSector.streak">
+              <span class="label">连续表现</span>
+              <span class="value streak">{{ selectedSector.streak }}</span>
+            </div>
+            <div class="info-row" v-if="selectedSector.leadStock">
+              <span class="label">领涨股</span>
+              <span class="value">{{ selectedSector.leadStock }}</span>
+            </div>
+          </div>
+          
+          <div class="sector-popup-actions">
+            <van-button type="primary" block round @click="searchSectorFunds">
+              搜索相关基金
+            </van-button>
+          </div>
+        </div>
+      </div>
+    </van-popup>
   </div>
 </template>
 
@@ -676,5 +727,64 @@ onMounted(() => {
     width: 60px;
     font-size: 14px;
   }
+}
+
+/* ========== 板块详情弹窗 ========== */
+.sector-popup {
+  padding: 16px;
+  background: var(--bg-secondary);
+}
+
+.sector-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sector-popup-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sector-popup-content {
+  padding-top: 16px;
+}
+
+.sector-popup-info {
+  margin-bottom: 24px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row .label {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.info-row .value {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.info-row .value.up { color: var(--color-up); }
+.info-row .value.down { color: var(--color-down); }
+.info-row .value.streak { color: var(--color-up); }
+
+.sector-popup-actions {
+  padding-top: 8px;
 }
 </style>

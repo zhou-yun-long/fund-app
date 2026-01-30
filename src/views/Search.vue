@@ -2,17 +2,27 @@
 // [WHY] 搜索页 - 搜索基金并添加到自选
 // [WHAT] 输入基金代码或名称搜索，点击添加到自选
 
-import { ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useFundStore } from '@/stores/fund'
 import { searchFund } from '@/api/fund'
 import { showToast, showLoadingToast, closeToast } from 'vant'
 import type { FundInfo } from '@/types/fund'
 
 const router = useRouter()
+const route = useRoute()
 const fundStore = useFundStore()
 
 const keyword = ref('')
+
+// [WHY] 从路由参数获取初始搜索关键词
+onMounted(() => {
+  const q = route.query.q as string
+  if (q) {
+    keyword.value = q
+    doSearch(q)
+  }
+})
 const searchResults = ref<FundInfo[]>([])
 const isSearching = ref(false)
 
