@@ -349,6 +349,7 @@ function goToManager() {
             <div class="similar-return" :class="fund.yearReturn >= 0 ? 'up' : 'down'">
               {{ fund.yearReturn >= 0 ? '+' : '' }}{{ fund.yearReturn.toFixed(2) }}%
             </div>
+            <van-icon name="arrow" class="similar-arrow" />
           </div>
         </div>
       </div>
@@ -712,9 +713,16 @@ function goToManager() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
+  padding: 12px 8px;
+  margin: 0 -8px;
   border-bottom: 1px solid var(--border-color);
   cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.similar-item:active {
+  background: var(--bg-card-hover);
 }
 
 .similar-item:last-child {
@@ -750,6 +758,12 @@ function goToManager() {
 
 .similar-return.up { color: var(--color-up); }
 .similar-return.down { color: var(--color-down); }
+
+.similar-arrow {
+  color: var(--text-muted);
+  margin-left: 8px;
+  font-size: 14px;
+}
 
 /* 基金信息 */
 .info-grid {
