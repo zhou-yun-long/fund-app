@@ -153,8 +153,16 @@ export const useHoldingStore = defineStore('holding', () => {
       return
     }
     
+    // [EDGE] 如果份额无效或为0，根据买入金额和当前净值重新计算
+    let shares = holding.shares
+    if (!shares || shares <= 0) {
+      // 使用买入净值计算，如果买入净值也无效则用当前净值
+      const buyNav = holding.buyNetValue > 0 ? holding.buyNetValue : currentValue
+      shares = holding.amount / buyNav
+    }
+    
     // [WHAT] 计算市值
-    const marketValue = holding.shares * currentValue
+    const marketValue = shares * currentValue
     
     // [WHAT] 计算成本（考虑 A类手续费）
     let cost = holding.amount
@@ -164,7 +172,7 @@ export const useHoldingStore = defineStore('holding', () => {
       // [WHAT] 计算从买入日到现在的累计销售服务费
       const days = holding.holdingDays || 0
       if (days > 0) {
-        const dailyFee = calculateDailyServiceFee(holding.shares, currentValue, holding.serviceFeeRate)
+        const dailyFee = calculateDailyServiceFee(shares, currentValue, holding.serviceFeeRate)
         totalServiceFee = dailyFee * days
       }
     }
@@ -174,9 +182,9 @@ export const useHoldingStore = defineStore('holding', () => {
     const profitRate = cost > 0 ? (profit / cost) * 100 : 0
     
     // [WHAT] 计算当日收益 = 持有份额 × (当前估值 - 昨日净值) - 当日服务费
-    let todayProfit = holding.shares * (currentValue - lastValue)
+    let todayProfit = shares * (currentValue - lastValue)
     if (holding.shareClass === 'C' && holding.serviceFeeRate) {
-      const dailyFee = calculateDailyServiceFee(holding.shares, currentValue, holding.serviceFeeRate)
+      const dailyFee = calculateDailyServiceFee(shares, currentValue, holding.serviceFeeRate)
       todayProfit -= dailyFee
     }
 
@@ -190,6 +198,8 @@ export const useHoldingStore = defineStore('holding', () => {
       todayChange: data.gszzl,
       todayProfit,
       loading: false,
+      // [WHAT] 更新份额（如果原来无效）
+      shares: shares,
       // [WHAT] 更新 C类累计服务费
       serviceFeeDeducted: holding.shareClass === 'C' ? totalServiceFee : undefined
     }
