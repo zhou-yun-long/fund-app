@@ -58,9 +58,9 @@ function onTabChange(name: string | number) {
       v-model="activeTab"
       @change="onTabChange"
     >
-      <van-tabbar-item name="home" icon="home-o">自选</van-tabbar-item>
-      <van-tabbar-item name="market" icon="chart-trending-o">行情</van-tabbar-item>
       <van-tabbar-item name="holding" icon="balance-list-o">持仓</van-tabbar-item>
+      <van-tabbar-item name="market" icon="chart-trending-o">行情</van-tabbar-item>
+      <van-tabbar-item name="home" icon="home-o">自选</van-tabbar-item>
       <van-tabbar-item name="analysis" icon="bar-chart-o">分析</van-tabbar-item>
     </van-tabbar>
   </div>
