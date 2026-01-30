@@ -176,6 +176,20 @@ function goBack() {
   router.back()
 }
 
+// [WHAT] 跳转到同类基金详情
+function goToSimilarFund(code: string) {
+  if (!code) {
+    showToast('基金代码无效')
+    return
+  }
+  // [WHY] 如果点击的是当前基金，提示用户
+  if (code === fundCode.value) {
+    showToast('已在当前基金')
+    return
+  }
+  router.push(`/detail/${code}`)
+}
+
 async function toggleWatchlist() {
   if (!fundInfo.value) return
   if (fundStore.isFundInWatchlist(fundCode.value)) {
@@ -340,7 +354,7 @@ function goToManager() {
             v-for="fund in similarFunds" 
             :key="fund.code"
             class="similar-item"
-            @click="router.push(`/detail/${fund.code}`)"
+            @click="goToSimilarFund(fund.code)"
           >
             <div class="similar-info">
               <div class="similar-name">{{ fund.name }}</div>
