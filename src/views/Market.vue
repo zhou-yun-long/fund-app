@@ -7,7 +7,7 @@ import { useRouter } from 'vue-router'
 import { fetchMarketIndicesFast, type MarketIndexSimple } from '@/api/fundFast'
 import { 
   fetchMarketOverview, fetchOTCFundRank, fetchSectorFunds, fetchETFRank,
-  type MarketOverview, type OTCFundItem, type SectorInfo, type ETFItem 
+  type MarketOverview, type OTCFundItem, type SectorInfo, type ETFItem, type FundDistribution
 } from '@/api/tiantianApi'
 import { formatPercent, getChangeStatus } from '@/utils/format'
 import { showToast } from 'vant'
@@ -146,6 +146,14 @@ function goToSector(sector: SectorInfo) {
   // TODO: 后续可跳转到 /filter?sector=xxx
 }
 
+// [WHAT] 点击涨跌分布柱子
+function onDistributionClick(item: FundDistribution) {
+  // [WHY] 显示该涨跌区间的基金数量
+  if (item.count > 0) {
+    showToast(`${item.range}: ${item.count} 只基金`)
+  }
+}
+
 // [WHAT] 获取柱状颜色
 function getBarColor(range: string): string {
   if (range.includes('-')) return 'down'
@@ -187,6 +195,7 @@ onMounted(() => {
               v-for="item in overview.distribution" 
               :key="item.range"
               class="bar-item"
+              @click="onDistributionClick(item)"
             >
               <div class="bar-value">{{ item.count || '' }}</div>
               <div 
@@ -397,6 +406,14 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   flex: 1;
+  cursor: pointer;
+  padding: 4px 2px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.bar-item:active {
+  background: var(--bg-card-hover);
 }
 
 .bar-value {
