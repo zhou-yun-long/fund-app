@@ -62,12 +62,9 @@ const periods = [
 const isIntradayMode = computed(() => activePeriod.value === '1d')
 
 // [WHAT] 只有当日模式且有实时数据时才显示分时图样式
-// [WHY] 如果没有实时数据，使用K线样式显示历史数据
-const showIntradayChart = computed(() => {
-  if (!isIntradayMode.value) return false
-  // 有分时数据或有实时估值才显示分时图
-  return intradayData.value.length > 0 || props.realtimeValue > 0
-})
+// [WHY] 基金没有真实分时数据，始终使用 K 线数据显示
+// [NOTE] 不再使用特殊的分时图模式，所有周期统一使用曲线图
+const showIntradayChart = computed(() => false)
 
 // [WHAT] 过滤数据
 const filteredData = computed(() => {
