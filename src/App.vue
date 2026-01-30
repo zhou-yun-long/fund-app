@@ -2,11 +2,57 @@
 // [WHY] 根组件，包含路由视图和底部导航
 // [WHAT] 使用 Vant Tabbar 实现底部导航切换
 // [NOTE] 公告和更新检查已移至 Home.vue 中处理
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { showToast } from 'vant'
 
 const route = useRoute()
 const router = useRouter()
+
+// [WHY] 处理 Android 返回键，防止直接退出应用
+// [WHAT] 在主页时需要双击才能退出
+let lastBackTime = 0
+let backButtonHandler: ((e: any) => void) | null = null
+
+onMounted(async () => {
+  // [WHAT] 动态导入 Capacitor App 插件（如果可用）
+  try {
+    const { App: CapApp } = await import('@capacitor/app')
+    
+    // [WHAT] 监听 Capacitor 返回键事件
+    await CapApp.addListener('backButton', ({ canGoBack }) => {
+      // [WHY] 如果不在主页，正常返回上一页
+      const mainPages = ['home', 'market', 'holding', 'analysis']
+      const isMainPage = mainPages.includes(route.name as string)
+      
+      if (!isMainPage && window.history.length > 1) {
+        router.back()
+        return
+      }
+      
+      // [WHY] 在主页时，双击退出
+      const now = Date.now()
+      if (now - lastBackTime < 2000) {
+        // 2秒内双击返回键，退出应用
+        CapApp.exitApp()
+      } else {
+        lastBackTime = now
+        showToast('再按一次退出应用')
+      }
+    })
+    
+    backButtonHandler = () => CapApp.removeAllListeners()
+  } catch {
+    // [EDGE] Web 环境或 Capacitor 未安装，忽略
+    console.log('Capacitor App plugin not available')
+  }
+})
+
+onUnmounted(() => {
+  if (backButtonHandler) {
+    backButtonHandler(null)
+  }
+})
 
 // [WHAT] 当前激活的 tab
 const activeTab = ref('home')

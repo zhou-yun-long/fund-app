@@ -342,7 +342,10 @@ function goToManager() {
             class="similar-item"
             @click="router.push(`/detail/${fund.code}`)"
           >
-            <div class="similar-name">{{ fund.name }}</div>
+            <div class="similar-info">
+              <div class="similar-name">{{ fund.name }}</div>
+              <div class="similar-code">{{ fund.code }}</div>
+            </div>
             <div class="similar-return" :class="fund.yearReturn >= 0 ? 'up' : 'down'">
               {{ fund.yearReturn >= 0 ? '+' : '' }}{{ fund.yearReturn.toFixed(2) }}%
             </div>
@@ -718,14 +721,24 @@ function goToManager() {
   border-bottom: none;
 }
 
+.similar-info {
+  flex: 1;
+  overflow: hidden;
+  margin-right: 12px;
+}
+
 .similar-name {
   font-size: 14px;
   color: var(--text-primary);
-  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-right: 12px;
+}
+
+.similar-code {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
 }
 
 .similar-return {

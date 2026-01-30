@@ -25,6 +25,9 @@ const indicesLoading = ref(true)
 const overview = ref<MarketOverview | null>(null)
 const overviewLoading = ref(true)
 
+// [WHY] 缓存上次成功获取的数据，避免每次加载都显示空白
+const cachedOverview = ref<MarketOverview | null>(null)
+
 // ========== 场外基金 ==========
 const otcFunds = ref<OTCFundItem[]>([])
 const otcLoading = ref(true)
@@ -57,11 +60,22 @@ async function loadIndices() {
 
 // [WHAT] 加载市场概况
 async function loadOverview() {
-  overviewLoading.value = true
+  // [WHY] 如果有缓存，先显示缓存数据，不显示 loading
+  if (cachedOverview.value) {
+    overview.value = cachedOverview.value
+    overviewLoading.value = false
+  } else {
+    overviewLoading.value = true
+  }
+  
   try {
-    overview.value = await fetchMarketOverview()
+    const data = await fetchMarketOverview()
+    if (data) {
+      overview.value = data
+      cachedOverview.value = data // 更新缓存
+    }
   } catch {
-    // 静默失败
+    // [EDGE] 失败时保持使用缓存数据
   } finally {
     overviewLoading.value = false
   }
@@ -123,6 +137,13 @@ async function onRefresh() {
 // [WHAT] 跳转到基金详情
 function goToDetail(code: string) {
   router.push(`/detail/${code}`)
+}
+
+// [WHAT] 跳转到板块筛选
+function goToSector(sector: SectorInfo) {
+  // [WHY] 跳转到筛选页，显示该板块相关基金
+  showToast(`正在开发: ${sector.name}`)
+  // TODO: 后续可跳转到 /filter?sector=xxx
 }
 
 // [WHAT] 获取柱状颜色
@@ -262,6 +283,7 @@ onMounted(() => {
             v-for="sector in sectors" 
             :key="sector.code || sector.name"
             class="sector-item"
+            @click="goToSector(sector)"
           >
             <div class="sector-info">
               <div class="sector-name">{{ sector.name }}</div>
@@ -270,6 +292,7 @@ onMounted(() => {
             <div class="sector-change" :class="getChangeStatus(sector.dayReturn)">
               {{ formatPercent(sector.dayReturn) }}
             </div>
+            <van-icon name="arrow" class="sector-arrow" />
           </div>
         </div>
         <van-loading v-else class="loading-box" />
@@ -559,6 +582,12 @@ onMounted(() => {
 .sector-item:active {
   background: var(--bg-secondary);
 }
+
+.sector-arrow {
+  color: var(--text-secondary);
+  margin-left: 8px;
+}
+
 .sector-item:last-child {
   border-bottom: none;
 }
