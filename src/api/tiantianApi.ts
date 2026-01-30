@@ -731,10 +731,12 @@ export async function fetchMarketOverview(): Promise<MarketOverview> {
   const persisted = persistCache.get<MarketOverview>(cacheKey)
   
   // [WHAT] 非交易时间直接返回持久化缓存
-  if (!isTradingTime() && persisted && persisted.totalUp > 0) {
-    cache.set(cacheKey, persisted, CACHE_TTL.MARKET_INDEX)
-    return persisted
-  }
+  // [DEBUG] 临时禁用缓存检查，强制获取新数据
+  // if (!isTradingTime() && persisted && persisted.totalUp > 0) {
+  //   cache.set(cacheKey, persisted, CACHE_TTL.MARKET_INDEX)
+  //   return persisted
+  // }
+  console.log('[MarketOverview] 开始获取数据, 交易时间:', isTradingTime(), '有缓存:', !!persisted)
   
   // [WHAT] 固定的区间分布
   // [NOTE] 使用 -0.001 作为边界，避免 change=0 被错误分类
