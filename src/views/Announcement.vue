@@ -23,6 +23,14 @@ const activeTab = ref<'announcement' | 'update' | 'about'>('announcement')
 // [WHAT] 更新日志（本地维护）
 const updateLogs = [
   {
+    version: '1.3.0',
+    date: '2026-01-30',
+    changes: [
+      '新增：使用 jsDelivr CDN 托管远程配置',
+      '优化：更新检测稳定性提升',
+    ]
+  },
+  {
     version: '1.2.0',
     date: '2026-01-30',
     changes: [
