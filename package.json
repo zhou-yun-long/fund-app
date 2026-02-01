@@ -30,6 +30,8 @@
     "@vant/auto-import-resolver": "^1.2.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
+    "local-pkg": "^0.5.1",
+    "mlly": "^1.7.4",
     "typescript": "~5.9.3",
     "unplugin-auto-import": "^19.0.0",
     "unplugin-vue-components": "^28.0.0",
