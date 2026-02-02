@@ -83,7 +83,9 @@ import type { HoldingRecord } from '@/types/fund'
  * 获取持仓列表
  */
 export function getHoldings(): HoldingRecord[] {
-  return getItem<HoldingRecord[]>(STORAGE_KEYS.HOLDINGS, [])
+  const data = getItem<HoldingRecord[]>(STORAGE_KEYS.HOLDINGS, [])
+  // [EDGE] 确保返回的是数组
+  return Array.isArray(data) ? data : []
 }
 
 /**

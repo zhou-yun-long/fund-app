@@ -11,38 +11,26 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
+  group: pages
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      # 安装 VitePress 并构建官网
-      - name: Install VitePress
-        run: npm install -D vitepress
-
-      - name: Build Docs
-        run: npx vitepress build docs
-
-      # 准备部署：官网 + 公告配置
-      - name: Prepare deployment
-        run: |
-          mkdir -p deploy
-          cp -r docs/.vitepress/dist/* deploy/
-          cp -r public/config deploy/
+      - name: Build
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -50,7 +38,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './deploy'
+          path: dist
 
   deploy:
     environment:

@@ -7,6 +7,7 @@ import { fileURLToPath, URL } from 'node:url'
 // [WHY] 配置 Vite 构建工具，支持 Vue3 和 Vant 组件自动导入
 // [WHAT] 使用 unplugin-vue-components 自动导入 Vant 组件，无需手动 import
 export default defineConfig({
+  base: '/fund-app/',  // GitHub Pages 部署路径
   plugins: [
     vue(),
     // [HOW] VantResolver 会自动识别 Vant 组件并导入对应的样式
